@@ -4,7 +4,7 @@
 #include "include/catch.hpp"
 #include "../src/include/node.hpp"
 #include "../src/include/edge.hpp"
-#include "../src/include/graph.hpp"
+#include "../src/include/dijkstra.hpp"
 
 TEST_CASE("Dijkstra finds shortest path and cost", "[graph]") {
 	Node* a = new Node("A");
@@ -23,8 +23,9 @@ TEST_CASE("Dijkstra finds shortest path and cost", "[graph]") {
 	std::vector<Node*> nodes = {a, b, c};
 	std::vector<Edge*> edges = {ab, bc, ac};
 	Graph graph(nodes, edges);
+	Dijkstra dijkstra(graph);
 
-	std::vector<Node*> path = graph.getShortestPath(c);
+	std::vector<Node*> path = dijkstra.findShortestPath(a, c);
 
 	REQUIRE(path.size() == 3);
 	REQUIRE(path[0]->label == "A");

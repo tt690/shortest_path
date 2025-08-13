@@ -6,17 +6,14 @@
 #include "node.hpp"
 #include "edge.hpp"
 
-class Node;
+class Node;  // Forward declaration
 
 class Graph
 {
-    private:
+    public:
         std::vector<Node*> nodes;
         std::vector<Edge*> edges;
-
-    public:
         Graph(std::vector<Node*> nodes, std::vector<Edge*> edges);
         Edge* getEdgeBetweenNodes(Node* from, Node* to);
         int getCostOfPath(std::vector<Node*> nodesToVisit);
-        std::vector<Node*> getShortestPath(Node* target);
 };

@@ -4,7 +4,7 @@
 
 #include "src/include/node.hpp"
 #include "src/include/edge.hpp"
-#include "src/include/graph.hpp"
+#include "src/include/dijkstra.hpp"
 
 int main() {
     // Create nodes
@@ -26,9 +26,10 @@ int main() {
     std::vector<Node*> nodes = {a, b, c};
     std::vector<Edge*> edges = {ab, bc, ac};
     Graph graph(nodes, edges);
+    Dijkstra dijkstra(graph);
 
     // Find shortest path from A to C
-    std::vector<Node*> path = graph.getShortestPath(c);
+    std::vector<Node*> path = dijkstra.findShortestPath(a, c);
 
     // Print path
     std::cout << "Shortest path from A to C: ";
