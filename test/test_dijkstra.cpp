@@ -1,7 +1,8 @@
+#include "include/catch.hpp"
+
 #include <vector>
 #include <string>
 
-#include "include/catch.hpp"
 #include "../src/include/node.hpp"
 #include "../src/include/edge.hpp"
 #include "../src/include/dijkstra.hpp"

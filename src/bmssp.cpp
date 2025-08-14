@@ -1,3 +1,5 @@
+#include "include/bmssp.hpp"
+
 #include <map>
 #include <list>
 #include <vector>
@@ -11,7 +13,6 @@
 #include "include/edge.hpp"
 
 #include "include/blocklistd.hpp"
-#include "include/bmssp.hpp"
 #include "include/constant_degree_graph.hpp"
 
 

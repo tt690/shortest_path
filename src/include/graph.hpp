@@ -1,7 +1,6 @@
 #pragma once
 
-#include <queue>
-#include <algorithm>
+#include <vector>
 
 #include "node.hpp"
 #include "edge.hpp"

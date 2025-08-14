@@ -1,5 +1,7 @@
 #include "include/dijkstra.hpp"
 
+#include <queue>
+
 Dijkstra::Dijkstra(Graph& graph) : graph(graph) {}
 
 std::vector<Node*> Dijkstra::findShortestPath(Node* start, Node* end)

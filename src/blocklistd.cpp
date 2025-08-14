@@ -1,4 +1,5 @@
 #include "include/blocklistd.hpp"
+
 #include <algorithm>
 
 BlockListD::BlockListD(int M_, int B_) : M(M_), B(B_) {
