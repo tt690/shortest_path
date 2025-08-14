@@ -7,9 +7,9 @@ class Edge
     public:
         Node* from;
         Node* to;
-        int cost;
+        int weight;
 
-        Edge(Node* from, Node* to, int cost);
+        Edge(Node* from, Node* to, int weight);
 
         friend std::ostream &operator<<(std::ostream& os, Edge& edge);
 };

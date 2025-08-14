@@ -11,6 +11,7 @@ class Node
     public:
         std::string label;
         std::vector<Edge*> edges;
+
         int distanceToSource;
         Node* previousNode;
 

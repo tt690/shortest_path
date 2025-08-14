@@ -22,7 +22,7 @@ std::vector<Node*> Dijkstra::findShortestPath(Node* start, Node* end)
 
         for (Edge* edge : current->edges) {
             Node* neighbor = edge->to;
-            int newDist = current->distanceToSource + edge->cost;
+            int newDist = current->distanceToSource + edge->weight;
             if (newDist < neighbor->distanceToSource) {
                 neighbor->distanceToSource = newDist;
                 neighbor->previousNode = current;

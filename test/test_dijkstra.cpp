@@ -6,7 +6,7 @@
 #include "../src/include/edge.hpp"
 #include "../src/include/dijkstra.hpp"
 
-TEST_CASE("Dijkstra finds shortest path and cost", "[graph]") {
+TEST_CASE("Dijkstra finds shortest path and weight", "[graph]") {
 	Node* a = new Node("A");
 	Node* b = new Node("B");
 	Node* c = new Node("C");
@@ -32,8 +32,8 @@ TEST_CASE("Dijkstra finds shortest path and cost", "[graph]") {
 	REQUIRE(path[1]->label == "B");
 	REQUIRE(path[2]->label == "C");
 
-	int cost = graph.getCostOfPath(path);
-	REQUIRE(cost == 3);
+	int weight = graph.getCostOfPath(path);
+	REQUIRE(weight == 3);
 
 	delete ab;
 	delete bc;

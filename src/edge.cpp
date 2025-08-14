@@ -1,6 +1,6 @@
 #include "include/edge.hpp"
 
-Edge::Edge(Node* from, Node* to, int cost): from(from), to(to), cost(cost){};
+Edge::Edge(Node* from, Node* to, int weight): from(from), to(to), weight(weight){};
 
 std::ostream &operator<<(std::ostream &os, Edge& edge) 
 {

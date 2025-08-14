@@ -1,40 +1,54 @@
 #include "include/constant_degree_graph.hpp"
+#include <unordered_map>
 #include <random>
 
-ConstantDegreeGraph::ConstantDegreeGraph(const Graph& original, size_t degree)
-    : Graph(original.nodes, original.edges) // Start with original nodes/edges
+
+ConstantDegreeGraph::ConstantDegreeGraph(const Graph& original, size_t /*degree*/)
+    : Graph({}, {}) // Explicitly call base Graph constructor with empty vectors
 {
-    // For each node, adjust its degree to match 'degree'
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    for (Node* node : nodes) {
-        // Remove excess edges
-        while (node->edges.size() > degree) {
-            node->edges.pop_back();
-        }
-        // Add random edges if degree is too low
-        while (node->edges.size() < degree) {
-            // Pick a random target node (not self, not already connected)
-            std::vector<Node*> candidates;
-            for (Node* target : nodes) {
-                if (target != node) {
-                    bool alreadyConnected = false;
-                    for (Edge* e : node->edges) {
-                        if (e->to == target) {
-                            alreadyConnected = true;
-                            break;
-                        }
-                    }
-                    if (!alreadyConnected) candidates.push_back(target);
-                }
+    std::unordered_map<Node*, std::vector<Node*>> cycleNodes;
+    std::unordered_map<Edge*, Node*> edgeToCycleNodeFrom;
+    std::unordered_map<Edge*, Node*> edgeToCycleNodeTo;
+
+    int nextId = 0;
+    // Step 1: For each node, create cycle nodes for each incident edge
+    for (Node* v : original.nodes) {
+        std::vector<Edge*> incidentEdges;
+        // Collect all incoming and outgoing edges
+        for (Edge* e : original.edges) {
+            if (e->from == v || e->to == v) {
+                incidentEdges.push_back(e);
             }
-            if (candidates.empty()) break;
-            std::uniform_int_distribution<> dis(0, candidates.size() - 1);
-            Node* target = candidates[dis(gen)];
-            
-            // Add edge (cost=0)
-            Edge* newEdge = new Edge(node, target, 0);
-            node->edges.push_back(newEdge);
+        }
+        std::vector<Node*> cycle;
+        for (size_t i = 0; i < incidentEdges.size(); ++i) {
+            Node* xvw = new Node(v->label + std::to_string(nextId++)); // Preserve original label, unique id
+            cycle.push_back(xvw);
+            nodes.push_back(xvw);
+        }
+        cycleNodes[v] = cycle;
+        // Map edges to their cycle nodes
+        for (size_t i = 0; i < incidentEdges.size(); ++i) {
+            Edge* e = incidentEdges[i];
+            if (e->from == v) edgeToCycleNodeFrom[e] = cycle[i];
+            if (e->to == v) edgeToCycleNodeTo[e] = cycle[i];
+        }
+        // Connect cycle nodes in a cycle with zero-weight edges
+        size_t n = cycle.size();
+        for (size_t i = 0; i < n; ++i) {
+            Edge* zeroEdge = new Edge(cycle[i], cycle[(i+1)%n], 0);
+            cycle[i]->edges.push_back(zeroEdge);
+            edges.push_back(zeroEdge);
+        }
+    }
+
+    // Step 2: For each edge (u, v) in original, add edge from xuv to xvu with original weight
+    for (Edge* e : original.edges) {
+        Node* xuv = edgeToCycleNodeFrom.count(e) ? edgeToCycleNodeFrom[e] : nullptr;
+        Node* xvu = edgeToCycleNodeTo.count(e) ? edgeToCycleNodeTo[e] : nullptr;
+        if (xuv && xvu) {
+            Edge* newEdge = new Edge(xuv, xvu, e->weight);
+            xuv->edges.push_back(newEdge);
             edges.push_back(newEdge);
         }
     }
