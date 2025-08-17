@@ -40,19 +40,17 @@ BMSSP::BMSSP(Graph& inputGraph, size_t degree)
     this->l = std::max(1, static_cast<int>(std::ceil(ln_n / static_cast<double>(this->t))));
 }
 
+
 std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperbound, std::vector<Node*> vertices)
 {
-    std::vector<Node*> weight = vertices; // W
-    std::vector<std::vector<Node*>> weights; // Wi
-    weights.push_back(vertices); // W0
+    // Strict FindPivots (Algorithm 1 from paper)
+    std::vector<Node*> W = vertices; // W ← S
+    std::vector<std::vector<Node*>> Wi; // Wi for k rounds
+    Wi.push_back(vertices); // W0 ← S
 
-    for (int i = 1; i <= this->k; i++)
-    {
-        weights.push_back(std::vector<Node*>()); // Wi
-
-        // Efficient lookup for previous set
-        std::unordered_set<Node*> prevSet(weights[i - 1].begin(), weights[i - 1].end());
-
+    for (int i = 1; i <= this->k; ++i) {
+        Wi.push_back({});
+        std::unordered_set<Node*> prevSet(Wi[i-1].begin(), Wi[i-1].end());
         for (Edge* edge : this->graph.edges) {
             Node* u = edge->from;
             Node* v = edge->to;
@@ -61,43 +59,40 @@ std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperboun
                     v->distanceToSource = u->distanceToSource + edge->weight;
                     v->previousNode = u;
                     if (u->distanceToSource + edge->weight < upperbound) {
-                        weights[i].push_back(v);
+                        Wi[i].push_back(v);
                     }
                 }
             }
         }
-
-        // Add Wi to W
-        weight.insert(weight.end(), weights[i].begin(), weights[i].end());
-
-        if (weight.size() > this->k * vertices.size()) {
-            return {vertices, weight}; // vertices as P
+        W.insert(W.end(), Wi[i].begin(), Wi[i].end());
+        if (W.size() > this->k * vertices.size()) {
+            // Partial execution: return all of S as pivots
+            return {vertices, W};
         }
     }
 
-    // Build directed forest
-    std::vector<Edge*> directedForest;
-    std::unordered_set<Node*> weightSet(weight.begin(), weight.end());
+    // Build directed forest F: edges (u,v) in W with db[v] = db[u] + wuv
+    std::vector<Edge*> F;
+    std::unordered_set<Node*> Wset(W.begin(), W.end());
     for (Edge* edge : this->graph.edges) {
-        if (weightSet.count(edge->from) && weightSet.count(edge->to)) {
-            Node* fromNode = edge->from;
-            Node* toNode = edge->to;
-            if (toNode->distanceToSource == fromNode->distanceToSource + edge->weight) {
-                directedForest.push_back(edge);
+        if (Wset.count(edge->from) && Wset.count(edge->to)) {
+            if (edge->to->distanceToSource == edge->from->distanceToSource + edge->weight) {
+                F.push_back(edge);
             }
         }
     }
 
-    // Find pivots: roots in vertices with >= k descendants in directedForest
+    // Find pivots: roots in S with >= k descendants in F
     std::vector<Node*> pivots;
     for (Node* u : vertices) {
+        // BFS to count descendants in F
         std::unordered_set<Node*> visited;
         std::queue<Node*> q;
         q.push(u);
         visited.insert(u);
         while (!q.empty()) {
             Node* curr = q.front(); q.pop();
-            for (Edge* edge : directedForest) {
+            for (Edge* edge : F) {
                 if (edge->from == curr && !visited.count(edge->to)) {
                     visited.insert(edge->to);
                     q.push(edge->to);
@@ -108,10 +103,10 @@ std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperboun
             pivots.push_back(u);
         }
     }
-    return {pivots, weight};
+    return {pivots, W};
 }
 
-// PATCH: baseCase that matches Algorithm 2 more closely
+
 std::pair<int, std::vector<Node*>> BMSSP::baseCase(int upperbound, std::vector<Node*> vertices)
 {
     // Assumption: vertices == {x} and x is complete
@@ -176,13 +171,14 @@ std::pair<int, std::vector<Node*>> BMSSP::baseCase(int upperbound, std::vector<N
     }
 }
 
-// Helper (optional): capacity/threshold at level l
+
 inline size_t cap_at_level(int l, int k, int t) {
     // k^2 * 2^{l*t}
     const double pow2 = std::pow(2.0, static_cast<double>(l) * static_cast<double>(t));
     const double capd = static_cast<double>(k) * static_cast<double>(k) * pow2;
     return static_cast<size_t>(std::ceil(capd));
 }
+
 
 std::pair<int, std::vector<Node*>> BMSSP::bmssp(int l, int B, std::vector<Node*> S)
 {
