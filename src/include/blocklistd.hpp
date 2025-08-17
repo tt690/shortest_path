@@ -11,6 +11,7 @@ class BlockListD {
         struct Pair { Node* key; int value; };
         int M, B;
         std::list<std::vector<Pair>> D0, D1; // blocks
+        std::map<int, std::list<std::vector<Pair>>::iterator> D1Bounds; // upper bounds for D1 blocks
         std::map<Node*, Pair> keyMap; // for fast lookup
 
         BlockListD(int M_, int B_);
@@ -21,5 +22,5 @@ class BlockListD {
         std::pair<std::vector<Node*>, int> pull();
 
     private:
-        void splitBlock(std::vector<Pair>& block);
+        void splitBlock(std::list<std::vector<Pair>>::iterator blockIt);
 };
