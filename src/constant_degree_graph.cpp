@@ -1,6 +1,5 @@
 #include "include/constant_degree_graph.hpp"
 #include <unordered_map>
-#include <random>
 
 
 ConstantDegreeGraph::ConstantDegreeGraph(const Graph& original, size_t /*degree*/)

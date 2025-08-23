@@ -29,7 +29,7 @@ BMSSP::BMSSP(Graph& inputGraph, size_t degree)
     }
 
     const int n = static_cast<int>(this->graph.nodes.size());
-    // Guard for tiny graphs
+    
     const double ln_n = std::max(1e-9, std::log(std::max(2, n)));  // avoid log(1)~0/underflow
 
     // k := floor( (log n)^(1/3) ),  t := floor( (log n)^(2/3) )
@@ -43,7 +43,6 @@ BMSSP::BMSSP(Graph& inputGraph, size_t degree)
 
 std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperbound, std::vector<Node*> vertices)
 {
-    // Strict FindPivots (Algorithm 1 from paper)
     std::vector<Node*> W = vertices; // W ← S
     std::vector<std::vector<Node*>> Wi; // Wi for k rounds
     Wi.push_back(vertices); // W0 ← S
@@ -99,7 +98,7 @@ std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperboun
                 }
             }
         }
-        if (visited.size() >= this->k) {
+        if (static_cast<int>(visited.size()) >= this->k) {
             pivots.push_back(u);
         }
     }
@@ -109,7 +108,6 @@ std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperboun
 
 std::pair<int, std::vector<Node*>> BMSSP::baseCase(int upperbound, std::vector<Node*> vertices)
 {
-    // Assumption: vertices == {x} and x is complete
     Node* x = vertices.front();
 
     std::vector<Node*> U0;           // U0 ← S initially
@@ -272,7 +270,7 @@ std::pair<int, std::vector<Node*>> BMSSP::bmssp(int l, int B, std::vector<Node*>
 
 std::vector<Node*> BMSSP::findShortestPath(Node* start, Node* end)
 {
-    // Set source node distance to 0 and clear previousNode for all nodes
+    // Set source node distance to 0 and other nodes to INT_MAX
     for (Node* node : this->graph.nodes) {
         node->distanceToSource = INT_MAX;
         node->previousNode = nullptr;
@@ -282,13 +280,14 @@ std::vector<Node*> BMSSP::findShortestPath(Node* start, Node* end)
     int B = INT_MAX;
     std::vector<Node*> S = {start};
     auto result = bmssp(this->l, B, S);
-    // Reconstruct path from start to end using previousNode
+    
+    Node* curr = end;
     std::vector<Node*> path;
-    Node* node = end;
-    if (node->distanceToSource == INT_MAX) return path; // unreachable
-    while (node) {
-        path.insert(path.begin(), node);
-        node = node->previousNode;
+    while (curr != nullptr) {
+        path.push_back(curr);
+        if (curr == start) break;
+        curr = curr->previousNode;
     }
+    std::reverse(path.begin(), path.end());
     return path;
 }
