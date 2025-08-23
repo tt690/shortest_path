@@ -1,6 +1,7 @@
 #include "include/dijkstra.hpp"
 
 #include <queue>
+#include <algorithm>
 
 Dijkstra::Dijkstra(Graph& graph) : graph(graph) {}
 
@@ -34,12 +35,13 @@ std::vector<Node*> Dijkstra::findShortestPath(Node* start, Node* end)
     }
 
     // Reconstruct path
-    std::vector<Node*> route;
-    Node* node = end;
-    if (node->distanceToSource == INT_MAX) return route; // unreachable
-    while (node) {
-        route.insert(route.begin(), node);
-        node = node->previousNode;
+    Node* curr = end;
+    std::vector<Node*> path;
+    while (curr != nullptr) {
+        path.push_back(curr);
+        if (curr == start) break;
+        curr = curr->previousNode;
     }
-    return route;
+    std::reverse(path.begin(), path.end());
+    return path;
 }
