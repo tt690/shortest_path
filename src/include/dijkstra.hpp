@@ -8,6 +8,7 @@ class Dijkstra
 {
     private:
         Graph& graph;
+        
     public:
         Dijkstra(Graph& graph);
         void findShortestPath(Node* start, Node* end);

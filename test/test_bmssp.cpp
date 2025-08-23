@@ -13,7 +13,8 @@ TEST_CASE("BMSSP findShortestPath returns correct path", "[bmssp]") {
     MockGraph mg;
     size_t degree = 2;
     BMSSP bmssp(*mg.graph, degree);
-    std::vector<Node*> path = bmssp.findShortestPath(mg.a, mg.d);
+    bmssp.findShortestPath(mg.a, mg.d);
+    std::vector<Node*> path = bmssp.reconstructPath(mg.a, mg.d);
 
     REQUIRE(path.size() == 4);
     REQUIRE(path[0]->label == "A");
@@ -29,7 +30,8 @@ TEST_CASE("BMSSP findShortestPath returns correct path on complex graph", "[bmss
     ComplexMockGraph mg;
     size_t degree = 3;
     BMSSP bmssp(*mg.graph, degree);
-    std::vector<Node*> path = bmssp.findShortestPath(mg.a, mg.g);
+    bmssp.findShortestPath(mg.a, mg.g);
+    std::vector<Node*> path = bmssp.reconstructPath(mg.a, mg.g);
 
     REQUIRE(path.size() == 7);
     REQUIRE(path[0]->label == "A");

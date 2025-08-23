@@ -268,7 +268,7 @@ std::pair<int, std::vector<Node*>> BMSSP::bmssp(int l, int B, std::vector<Node*>
 }
 
 
-std::vector<Node*> BMSSP::findShortestPath(Node* start, Node* end)
+void BMSSP::findShortestPath(Node* start, Node* end)
 {
     // Set source node distance to 0 and other nodes to INT_MAX
     for (Node* node : this->graph.nodes) {
@@ -280,9 +280,13 @@ std::vector<Node*> BMSSP::findShortestPath(Node* start, Node* end)
     int B = INT_MAX;
     std::vector<Node*> S = {start};
     auto result = bmssp(this->l, B, S);
-    
-    Node* curr = end;
+}
+
+
+std::vector<Node*> BMSSP::reconstructPath(Node* start, Node* end)
+{
     std::vector<Node*> path;
+    Node* curr = end;
     while (curr != nullptr) {
         path.push_back(curr);
         if (curr == start) break;
