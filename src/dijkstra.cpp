@@ -3,19 +3,21 @@
 #include <queue>
 #include <algorithm>
 
-Dijkstra::Dijkstra(Graph& graph) : graph(graph) {}
-
-std::vector<Node*> Dijkstra::findShortestPath(Node* start, Node* end)
+Dijkstra::Dijkstra(Graph& graph) : graph(graph)
 {
-    // Lambda for priority queue: smallest distance first
-    auto cmp = [](Node* a, Node* b) { return a->distanceToSource > b->distanceToSource; };
-    std::priority_queue<Node*, std::vector<Node*>, decltype(cmp)> queue(cmp);
-
     // Initialize all nodes
     for (Node* node : graph.nodes) {
         node->distanceToSource = INT_MAX;
         node->previousNode = nullptr;
     }
+}
+
+void Dijkstra::findShortestPath(Node* start, Node* end)
+{
+    // Lambda for priority queue: smallest distance first
+    auto cmp = [](Node* a, Node* b) { return a->distanceToSource > b->distanceToSource; };
+    std::priority_queue<Node*, std::vector<Node*>, decltype(cmp)> queue(cmp);
+
     start->distanceToSource = 0;
     queue.push(start);
 
@@ -33,10 +35,13 @@ std::vector<Node*> Dijkstra::findShortestPath(Node* start, Node* end)
             }
         }
     }
+}
 
-    // Reconstruct path
-    Node* curr = end;
+
+std::vector<Node*> Dijkstra::reconstructPath(Node* start, Node* end)
+{
     std::vector<Node*> path;
+    Node* curr = end;
     while (curr != nullptr) {
         path.push_back(curr);
         if (curr == start) break;
