@@ -42,6 +42,7 @@
 
 # python
 .env/
+__pycache__/
 
 # vscode settings
 .vscode/

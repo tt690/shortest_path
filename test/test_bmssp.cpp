@@ -9,12 +9,12 @@
 #include "../src/include/graph.hpp"
 #include "../src/include/bmssp.hpp"
 
-TEST_CASE("BMSSP findShortestPath returns correct path", "[bmssp]") {
+TEST_CASE("BMSSP find_shortest_path returns correct path", "[bmssp]") {
     MockGraph mg;
     size_t degree = 2;
     BMSSP bmssp(*mg.graph, degree);
-    bmssp.findShortestPath(mg.a, mg.d);
-    std::vector<Node*> path = bmssp.reconstructPath(mg.a, mg.d);
+    bmssp.find_shortest_path(mg.a, mg.d);
+    std::vector<Node*> path = bmssp.reconstruct_path(mg.a, mg.d);
 
     REQUIRE(path.size() == 4);
     REQUIRE(path[0]->label == "A");
@@ -26,12 +26,12 @@ TEST_CASE("BMSSP findShortestPath returns correct path", "[bmssp]") {
 	REQUIRE(weight == 3);
 }
 
-TEST_CASE("BMSSP findShortestPath returns correct path on complex graph", "[bmssp]") {
+TEST_CASE("BMSSP find_shortest_path returns correct path on complex graph", "[bmssp]") {
     ComplexMockGraph mg;
     size_t degree = 3;
     BMSSP bmssp(*mg.graph, degree);
-    bmssp.findShortestPath(mg.a, mg.g);
-    std::vector<Node*> path = bmssp.reconstructPath(mg.a, mg.g);
+    bmssp.find_shortest_path(mg.a, mg.g);
+    std::vector<Node*> path = bmssp.reconstruct_path(mg.a, mg.g);
 
     REQUIRE(path.size() == 7);
     REQUIRE(path[0]->label == "A");

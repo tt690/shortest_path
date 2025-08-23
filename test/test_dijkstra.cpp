@@ -13,8 +13,8 @@ TEST_CASE("Dijkstra finds shortest path and weight", "[graph]") {
 	Dijkstra dijkstra(*mg.graph);
 	Node* start = mg.a;
 	Node* end = mg.d;
-	dijkstra.findShortestPath(start, end);
-	std::vector<Node*> path = dijkstra.reconstructPath(start, end);
+	dijkstra.find_shortest_path(start, end);
+	std::vector<Node*> path = dijkstra.reconstruct_path(start, end);
 
 	REQUIRE(path.size() == 4);
 	REQUIRE(path[0]->label == "A");
@@ -31,8 +31,8 @@ TEST_CASE("Dijkstra finds shortest path in complex graph", "[graph][complex]") {
 	Dijkstra dijkstra(*mg.graph);
 	Node* start = mg.a;
 	Node* end = mg.g;
-	dijkstra.findShortestPath(start, end);
-	std::vector<Node*> path = dijkstra.reconstructPath(start, end);
+	dijkstra.find_shortest_path(start, end);
+	std::vector<Node*> path = dijkstra.reconstruct_path(start, end);
 
 	REQUIRE(path.size() == 7);
 	REQUIRE(path[0]->label == "A");

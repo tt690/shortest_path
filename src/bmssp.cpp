@@ -17,7 +17,7 @@
 
 
 BMSSP::BMSSP(Graph& inputGraph, size_t degree) 
-    : graph(inputGraph)
+    : Dijkstra(inputGraph), graph(inputGraph)
 {
     bool alreadyConstant = true;
     for (Node* node : inputGraph.nodes) {
@@ -268,7 +268,7 @@ std::pair<int, std::vector<Node*>> BMSSP::bmssp(int l, int B, std::vector<Node*>
 }
 
 
-void BMSSP::findShortestPath(Node* start, Node* end)
+void BMSSP::find_shortest_path(Node* start, Node* end)
 {
     // Set source node distance to 0 and other nodes to INT_MAX
     for (Node* node : this->graph.nodes) {
@@ -280,18 +280,4 @@ void BMSSP::findShortestPath(Node* start, Node* end)
     int B = INT_MAX;
     std::vector<Node*> S = {start};
     auto result = bmssp(this->l, B, S);
-}
-
-
-std::vector<Node*> BMSSP::reconstructPath(Node* start, Node* end)
-{
-    std::vector<Node*> path;
-    Node* curr = end;
-    while (curr != nullptr) {
-        path.push_back(curr);
-        if (curr == start) break;
-        curr = curr->previousNode;
-    }
-    std::reverse(path.begin(), path.end());
-    return path;
 }

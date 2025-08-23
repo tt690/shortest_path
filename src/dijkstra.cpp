@@ -5,7 +5,7 @@
 
 Dijkstra::Dijkstra(Graph& graph) : graph(graph) {}
 
-void Dijkstra::findShortestPath(Node* start, Node* end)
+void Dijkstra::find_shortest_path(Node* start, Node* end)
 {
     // Lambda for priority queue: smallest distance first
     auto cmp = [](Node* a, Node* b) { return a->distanceToSource > b->distanceToSource; };
@@ -36,7 +36,7 @@ void Dijkstra::findShortestPath(Node* start, Node* end)
 }
 
 
-std::vector<Node*> Dijkstra::reconstructPath(Node* start, Node* end)
+std::vector<Node*> Dijkstra::reconstruct_path(Node* start, Node* end)
 {
     std::vector<Node*> path;
     Node* curr = end;

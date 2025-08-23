@@ -11,6 +11,6 @@ class Dijkstra
         
     public:
         Dijkstra(Graph& graph);
-        void findShortestPath(Node* start, Node* end);
-        std::vector<Node*> reconstructPath(Node* start, Node* end);
+        void find_shortest_path(Node* start, Node* end);
+        std::vector<Node*> reconstruct_path(Node* start, Node* end);
 };
