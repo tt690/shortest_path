@@ -35,8 +35,6 @@ WDELTESTOBJ = $(TESTSRC:$(TESTSRCDIR)/%$(EXT)=$(TESTOBJDIR)\\%.o)
 ####################### Targets beginning here #########################
 ########################################################################
 
-all: $(APPNAME) $(TESTAPPNAME)
-
 # Builds the app
 $(APPNAME): $(OBJ) main.cpp
 	$(CC) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
@@ -58,6 +56,29 @@ $(OBJDIR)/%.o: $(SRCDIR)/%$(EXT) main.cpp
 
 $(TESTOBJDIR)/%.o: $(TESTSRCDIR)/%$(EXT)
 	$(CC) $(CXXFLAGS) -o $@ -c $<  -Isrc/
+
+# DLL output directory
+DLLDIR = shortest_path
+
+# List of base names for source files (without extension)
+SRCBASE = $(notdir $(basename $(SRC)))
+
+# List of DLLs to build
+DLLS = $(addprefix $(DLLDIR)/, $(addsuffix .dll, $(SRCBASE)))
+
+# Rule to build all DLLs
+dlls: $(DLLS)
+
+# Pattern rule to build each DLL from its object file
+$(DLLDIR)/%.dll: $(OBJDIR)/%.o $(OBJ)
+	$(CC) -shared -static -static-libgcc -static-libstdc++ -o $@ $^ -fPIC
+
+# Ensure DLLDIR exists
+$(DLLDIR):
+	mkdir $(DLLDIR)
+
+# Update 'all' target to build DLLs too
+all: $(APPNAME) $(TESTAPPNAME) dlls
 
 ################### Cleaning rules for Unix-based OS ###################
 # Cleans complete project
