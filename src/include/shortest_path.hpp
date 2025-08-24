@@ -16,7 +16,7 @@ class shortest_path {
 
     public:
         shortest_path() : graph(*(new Graph({}, {}))) {}
-        ~shortest_path() { delete &graph; }
+        ~shortest_path() { delete algorithm; }
 
         void generate_graph(int num_vertices, int num_edges);
         std::pair<int, int> initialize(bool bmssp);

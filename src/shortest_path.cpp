@@ -44,6 +44,11 @@ void shortest_path::set_random_seed(unsigned seed) {
 }
 
 void shortest_path::generate_graph(int num_vertices, int num_edges) {
+    for (Node* n : graph.nodes) delete n;
+    for (Edge* e : graph.edges) delete e;
+    graph.nodes.clear();
+    graph.edges.clear();
+
     std::uniform_int_distribution<int> vertex_distribution(0, num_vertices - 1);
     std::uniform_int_distribution<int> weight_distribution(1, 10);
 
@@ -63,7 +68,8 @@ void shortest_path::generate_graph(int num_vertices, int num_edges) {
         edges.push_back(edge);
     }
 
-    this->graph = Graph(nodes, edges);
+    this->graph.edges = std::move(edges);
+    this->graph.nodes = std::move(nodes);
 }
 
 int shortest_path::detect_graph_degree() {
@@ -77,6 +83,8 @@ int shortest_path::detect_graph_degree() {
 }
 
 std::pair<int, int> shortest_path::initialize(bool bmssp) {
+    if (this->algorithm) delete this->algorithm;
+
     if (bmssp) {
         int degree = detect_graph_degree();
         this->algorithm = new BMSSP(this->graph, degree);
