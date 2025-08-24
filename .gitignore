@@ -44,5 +44,8 @@
 .env/
 __pycache__/
 
+# output files
+*.csv
+
 # vscode settings
 .vscode/

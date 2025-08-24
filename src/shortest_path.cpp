@@ -9,6 +9,11 @@
 #include "include/dijkstra.hpp"
 #include "include/bmssp.hpp"
 
+struct InitResult {
+    int vertex_count;
+    int edge_count;
+};
+
 shortest_path shortest_path_instance;
 
 extern "C" {
@@ -16,17 +21,29 @@ extern "C" {
         shortest_path_instance.generate_graph(num_vertices, num_edges);
     }
 
-    __declspec(dllexport) void initialize(bool bmssp) {
-        shortest_path_instance.initialize(bmssp);
+    __declspec(dllexport) InitResult initialize(bool bmssp) {
+        auto result = shortest_path_instance.initialize(bmssp);
+        InitResult out;
+        out.vertex_count = result.first;
+        out.edge_count = result.second;
+        return out;
     }
 
     __declspec(dllexport) void get_shortest_path() {
         shortest_path_instance.get_shortest_path();
     }
+
+    __declspec(dllexport) void set_random_seed(unsigned seed) {
+        shortest_path_instance.set_random_seed(seed);
+    }
+}
+
+void shortest_path::set_random_seed(unsigned seed) {
+    std::srand(seed);
+    this->generator.seed(seed);
 }
 
 void shortest_path::generate_graph(int num_vertices, int num_edges) {
-    std::default_random_engine generator;
     std::uniform_int_distribution<int> vertex_distribution(0, num_vertices - 1);
     std::uniform_int_distribution<int> weight_distribution(1, 10);
 
@@ -39,9 +56,9 @@ void shortest_path::generate_graph(int num_vertices, int num_edges) {
     }
 
     for (int i = 0; i < num_edges; ++i) {
-        int u = vertex_distribution(generator);
-        int v = vertex_distribution(generator);
-        int weight = weight_distribution(generator);
+        int u = vertex_distribution(this->generator);
+        int v = vertex_distribution(this->generator);
+        int weight = weight_distribution(this->generator);
         Edge* edge = new Edge(nodes[u], nodes[v], weight);
         edges.push_back(edge);
     }
@@ -59,13 +76,18 @@ int shortest_path::detect_graph_degree() {
     return max_degree;
 }
 
-void shortest_path::initialize(bool bmssp) {
+std::pair<int, int> shortest_path::initialize(bool bmssp) {
     if (bmssp) {
         int degree = detect_graph_degree();
         this->algorithm = new BMSSP(this->graph, degree);
     } else {
         this->algorithm = new Dijkstra(this->graph);
     }
+
+    int vertex_count = this->algorithm->graph.nodes.size();
+    int edges_count = this->algorithm->graph.edges.size();
+
+    return {vertex_count, edges_count};
 }
 
 std::pair<Node*, Node*> shortest_path::get_start_end_nodes() {

@@ -1,27 +1,69 @@
 import ctypes
 import pathlib
+from typing import Tuple
+
+
+class InitResult(ctypes.Structure):
+    _fields_ = [("vertex_count", ctypes.c_int),
+                ("edge_count", ctypes.c_int)]
 
 
 class ShortestPathLib:
+    """A class that provides an interface to the shortest path library."""
+
     def __init__(self):
+        """
+        Initialize the ShortestPathLib class.
+        """
         dll_path = pathlib.Path(__file__).parent.parent.parent / "shortest_path" / "shortest_path.dll"
         self.lib = ctypes.CDLL(str(dll_path))
 
-        # Set argument and return types for the DLL functions
         self.lib.generate_graph.argtypes = [ctypes.c_int, ctypes.c_int]
         self.lib.generate_graph.restype = None
 
         self.lib.initialize.argtypes = [ctypes.c_bool]
-        self.lib.initialize.restype = None
+        self.lib.initialize.restype = InitResult
 
         self.lib.get_shortest_path.argtypes = []
         self.lib.get_shortest_path.restype = None
 
-    def generate_graph(self, num_vertices, num_edges):
+        self.lib.set_random_seed.argtypes = [ctypes.c_uint]
+        self.lib.set_random_seed.restype = None
+
+    def generate_graph(self, num_vertices: int, num_edges: int):
+        """
+        Generate a random graph.
+
+        Parameters:
+            num_vertices: The number of vertices in the graph.
+            num_edges: The number of edges in the graph.
+        """
         self.lib.generate_graph(num_vertices, num_edges)
 
-    def initialize(self, bmssp=False):
-        self.lib.initialize(bmssp)
+    def initialize(self, bmssp: bool = False) -> Tuple[int, int]:
+        """
+        Initialize the shortest path algorithm.
+
+        Parameters:
+            bmssp: Whether to use the Bidirectional Multi-Source Shortest Path (BMSSP) algorithm.
+
+        Returns:
+            The number of vertices and edges in the graph stored in a tuple.
+        """
+        result = self.lib.initialize(bmssp)
+        return result.vertex_count, result.edge_count
 
     def get_shortest_path(self):
+        """
+        Get the shortest path from the source to the target.
+        """
         self.lib.get_shortest_path()
+
+    def set_random_seed(self, seed: int):
+        """
+        Set the random seed for the graph generation.
+
+        Parameters:
+            seed: The random seed value.
+        """
+        self.lib.set_random_seed(seed)
