@@ -35,7 +35,6 @@ void Dijkstra::find_shortest_path(Node* start, Node* end)
     }
 }
 
-
 std::vector<Node*> Dijkstra::reconstruct_path(Node* start, Node* end)
 {
     std::vector<Node*> path;

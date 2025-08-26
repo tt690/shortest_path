@@ -1,9 +1,8 @@
 #include "include/constant_degree_graph.hpp"
 #include <unordered_map>
 
-
 ConstantDegreeGraph::ConstantDegreeGraph(const Graph& original, size_t /*degree*/)
-    : Graph({}, {}) // Explicitly call base Graph constructor with empty vectors
+    : Graph({}, {})
 {
     std::unordered_map<Node*, std::vector<Node*>> cycleNodes;
     std::unordered_map<Edge*, Node*> edgeToCycleNodeFrom;

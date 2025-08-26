@@ -11,7 +11,6 @@
 
 #include "include/node.hpp"
 #include "include/edge.hpp"
-
 #include "include/blocklistd.hpp"
 #include "include/constant_degree_graph.hpp"
 
@@ -39,7 +38,6 @@ BMSSP::BMSSP(Graph& inputGraph, size_t degree)
     // l in [0, ceil(log n / t)]
     this->l = std::max(1, static_cast<int>(std::ceil(ln_n / static_cast<double>(this->t))));
 }
-
 
 std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperbound, std::vector<Node*> vertices)
 {
@@ -105,7 +103,6 @@ std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperboun
     return {pivots, W};
 }
 
-
 std::pair<int, std::vector<Node*>> BMSSP::baseCase(int upperbound, std::vector<Node*> vertices)
 {
     Node* x = vertices.front();
@@ -169,14 +166,12 @@ std::pair<int, std::vector<Node*>> BMSSP::baseCase(int upperbound, std::vector<N
     }
 }
 
-
 inline size_t cap_at_level(int l, int k, int t) {
     // k^2 * 2^{l*t}
     const double pow2 = std::pow(2.0, static_cast<double>(l) * static_cast<double>(t));
     const double capd = static_cast<double>(k) * static_cast<double>(k) * pow2;
     return static_cast<size_t>(std::ceil(capd));
 }
-
 
 std::pair<int, std::vector<Node*>> BMSSP::bmssp(int l, int B, std::vector<Node*> S)
 {
@@ -266,7 +261,6 @@ std::pair<int, std::vector<Node*>> BMSSP::bmssp(int l, int B, std::vector<Node*>
     for (Node* x : W) if (x->distanceToSource < Bfinal) U.push_back(x);
     return { Bfinal, U };
 }
-
 
 void BMSSP::find_shortest_path(Node* start, Node* end)
 {

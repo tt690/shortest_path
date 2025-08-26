@@ -10,9 +10,9 @@ class BlockListD {
     public:
         struct Pair { Node* key; int value; };
         int M, B;
-        std::list<std::vector<Pair>> D0, D1; // blocks
-        std::map<int, std::list<std::vector<Pair>>::iterator> D1Bounds; // upper bounds for D1 blocks
-        std::map<Node*, Pair> keyMap; // for fast lookup
+        std::list<std::vector<Pair>> D0, D1;
+        std::map<int, std::list<std::vector<Pair>>::iterator> D1Bounds;
+        std::map<Node*, Pair> keyMap;
 
         BlockListD(int M_, int B_);
         void insert(Node* key, int value);

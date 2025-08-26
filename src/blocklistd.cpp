@@ -5,20 +5,17 @@
 #include <map>
 #include <iostream>
 
+#include "include/node.hpp"
 
 static size_t blockSize(int M) {
     return (M + 1) / 2; // ceil(M/2)
 }
 
-
 BlockListD::BlockListD(int M_, int B_) : M(M_), B(B_) {
-    // D0: empty sequence (no blocks)
     D0.clear();
-    // D1: single empty block with upper bound B
     D1.push_back({});
-    D1Bounds[B] = D1.begin(); // map upper bound to block iterator
+    D1Bounds[B] = D1.begin();
 }
-
 
 void BlockListD::insert(Node* key, int value) {
     auto it = keyMap.find(key);
@@ -47,7 +44,6 @@ void BlockListD::insert(Node* key, int value) {
     while (block.size() > M) splitBlock(blockIt);
 }
 
-
 void BlockListD::batchPrepend(const std::vector<Pair>& L) {
     if (L.empty()) return;
     std::vector<Pair> batch = L;
@@ -71,7 +67,6 @@ void BlockListD::batchPrepend(const std::vector<Pair>& L) {
         idx += take;
     }
 }
-
 
 void BlockListD::remove(Node* key) {
     keyMap.erase(key);
@@ -108,9 +103,7 @@ void BlockListD::remove(Node* key) {
     }
 }
 
-
 bool BlockListD::empty() const { return keyMap.empty(); }
-
 
 std::pair<std::vector<Node*>, int> BlockListD::pull() {
     // Always return a prefix of size ceil(M/2) (or all remaining if less)
@@ -142,7 +135,6 @@ std::pair<std::vector<Node*>, int> BlockListD::pull() {
     
     return {S, x};
 }
-
 
 void BlockListD::splitBlock(std::list<std::vector<Pair>>::iterator blockIt) {
     auto& block = *blockIt;
