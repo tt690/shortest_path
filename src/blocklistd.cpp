@@ -41,7 +41,7 @@ void BlockListD::insert(Node* key, int value) {
     // Update upper bound
     D1Bounds.erase(boundIt);
     D1Bounds[block.empty() ? B : block.back().value] = blockIt;
-    while (block.size() > M) splitBlock(blockIt);
+    while (static_cast<int>(block.size()) > M) splitBlock(blockIt);
 }
 
 void BlockListD::batchPrepend(const std::vector<Pair>& L) {

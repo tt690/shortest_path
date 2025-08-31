@@ -43,7 +43,7 @@ class Timing:
             for vertex_count in self.vertex_ranges:
                 for edge_count in self.edge_ranges:
                     random_seed = random.randint(0, 100000)
-                    for bmssp in [True, False]:
+                    for bmssp in [False, True]:
                         self.shortest_path_instance.set_random_seed(random_seed)
 
                         for graph_config in range(self.graph_combinations):
