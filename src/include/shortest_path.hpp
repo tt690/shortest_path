@@ -11,15 +11,19 @@ class shortest_path {
         Dijkstra* algorithm = nullptr;
         std::default_random_engine generator;
 
+        Node *start_node = nullptr;
+        Node *end_node = nullptr;
+
         int detect_graph_degree();
-        std::pair<Node*, Node*> get_start_end_nodes();
 
     public:
         shortest_path() : graph(*(new Graph({}, {}))) {}
         ~shortest_path() { delete algorithm; }
 
+        void set_random_seed(unsigned seed);
         void generate_graph(int num_vertices, int num_edges);
+        void set_start_end_nodes();
+
         std::pair<int, int> initialize(bool bmssp);
         void get_shortest_path();
-        void set_random_seed(unsigned seed);
 };

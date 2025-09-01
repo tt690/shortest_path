@@ -18,8 +18,14 @@ class ShortestPathLib:
         dll_path = pathlib.Path(__file__).parent.parent.parent / "shortest_path" / "shortest_path.dll"
         self.lib = ctypes.CDLL(str(dll_path))
 
+        self.lib.set_random_seed.argtypes = [ctypes.c_uint]
+        self.lib.set_random_seed.restype = None
+
         self.lib.generate_graph.argtypes = [ctypes.c_int, ctypes.c_int]
         self.lib.generate_graph.restype = None
+
+        self.lib.set_start_end_nodes.argtypes = []
+        self.lib.set_start_end_nodes.restype = None
 
         self.lib.initialize.argtypes = [ctypes.c_bool]
         self.lib.initialize.restype = InitResult
@@ -27,8 +33,14 @@ class ShortestPathLib:
         self.lib.get_shortest_path.argtypes = []
         self.lib.get_shortest_path.restype = None
 
-        self.lib.set_random_seed.argtypes = [ctypes.c_uint]
-        self.lib.set_random_seed.restype = None
+    def set_random_seed(self, seed: int):
+        """
+        Set the random seed for the graph generation.
+
+        Parameters:
+            seed: The random seed value.
+        """
+        self.lib.set_random_seed(seed)
 
     def generate_graph(self, num_vertices: int, num_edges: int):
         """
@@ -39,6 +51,12 @@ class ShortestPathLib:
             num_edges: The number of edges in the graph.
         """
         self.lib.generate_graph(num_vertices, num_edges)
+
+    def set_start_end_nodes(self):
+        """
+        Set the start and end nodes for the shortest path algorithm.
+        """
+        self.lib.set_start_end_nodes()
 
     def initialize(self, bmssp: bool = False) -> Tuple[int, int]:
         """
@@ -58,12 +76,3 @@ class ShortestPathLib:
         Get the shortest path from the source to the target.
         """
         self.lib.get_shortest_path()
-
-    def set_random_seed(self, seed: int):
-        """
-        Set the random seed for the graph generation.
-
-        Parameters:
-            seed: The random seed value.
-        """
-        self.lib.set_random_seed(seed)

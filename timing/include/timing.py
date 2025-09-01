@@ -43,13 +43,15 @@ class Timing:
             for vertex_count in self.vertex_ranges:
                 for edge_count in self.edge_ranges:
                     random_seed = random.randint(0, 100000)
-                    for bmssp in [False, True]:
-                        self.shortest_path_instance.set_random_seed(random_seed)
+                    self.shortest_path_instance.set_random_seed(random_seed)
+                    self.shortest_path_instance.generate_graph(vertex_count, edge_count)
 
-                        for graph_config in range(self.graph_combinations):
-                            self.shortest_path_instance.generate_graph(vertex_count, edge_count)
-                            vertex_count, edge_count = self.shortest_path_instance.initialize(bmssp=bmssp)
-                            for i in range(self.iterations_per_combination):
+                    for graph_config in range(self.graph_combinations):
+                        self.shortest_path_instance.set_start_end_nodes()
+                        
+                        for i in range(self.iterations_per_combination):
+                            for bmssp in [False, True]:
+                                vertex_count, edge_count = self.shortest_path_instance.initialize(bmssp=bmssp)
                                 start = time.time()
                                 self.shortest_path_instance.get_shortest_path()
                                 elapsed = time.time() - start
