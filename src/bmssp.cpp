@@ -4,6 +4,7 @@
 #include <list>
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 #include <queue>
 #include <algorithm>
 #include <cmath>
@@ -45,9 +46,17 @@ std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperboun
     std::vector<std::vector<Node*>> Wi; // Wi for k rounds
     Wi.push_back(vertices); // W0 ← S
 
+    // Reusable container to mark membership of previous round
+    std::unordered_set<Node*> prevSet;
+    prevSet.reserve(std::max<size_t>(vertices.size()*2, 16));
+
     for (int i = 1; i <= this->k; ++i) {
         Wi.push_back({});
-        std::unordered_set<Node*> prevSet(Wi[i-1].begin(), Wi[i-1].end());
+        prevSet.clear();
+        prevSet.reserve(std::max<size_t>(Wi[i-1].size()*2, 16));
+        for (Node* n : Wi[i-1]) prevSet.insert(n);
+
+        // Single full edge scan, but using the prebuilt set for membership testing
         for (Edge* edge : this->graph.edges) {
             Node* u = edge->from;
             Node* v = edge->to;
@@ -68,33 +77,43 @@ std::pair<std::vector<Node*>, std::vector<Node*>> BMSSP::findNodes(int upperboun
         }
     }
 
-    // Build directed forest F: edges (u,v) in W with db[v] = db[u] + wuv
-    std::vector<Edge*> F;
-    std::unordered_set<Node*> Wset(W.begin(), W.end());
+    // Build directed forest adjacency once: children[u] = list of v
+    std::unordered_map<Node*, std::vector<Node*>> children;
+    children.reserve(std::max<size_t>(W.size()*2, 16));
+    std::unordered_set<Node*> Wset;
+    Wset.reserve(std::max<size_t>(W.size()*2, 16));
+    for (Node* n : W) Wset.insert(n);
+
     for (Edge* edge : this->graph.edges) {
         if (Wset.count(edge->from) && Wset.count(edge->to)) {
             if (edge->to->distanceToSource == edge->from->distanceToSource + edge->weight) {
-                F.push_back(edge);
+                children[edge->from].push_back(edge->to);
             }
         }
     }
 
     // Find pivots: roots in S with >= k descendants in F
     std::vector<Node*> pivots;
+    pivots.reserve(vertices.size());
     for (Node* u : vertices) {
-        // BFS to count descendants in F
+        // BFS over children adjacency to count descendants
         std::unordered_set<Node*> visited;
+        visited.reserve(std::max<size_t>(this->k * 2, 16));
         std::queue<Node*> q;
         q.push(u);
         visited.insert(u);
         while (!q.empty()) {
             Node* curr = q.front(); q.pop();
-            for (Edge* edge : F) {
-                if (edge->from == curr && !visited.count(edge->to)) {
-                    visited.insert(edge->to);
-                    q.push(edge->to);
+            auto it = children.find(curr);
+            if (it == children.end()) continue;
+            for (Node* child : it->second) {
+                if (!visited.count(child)) {
+                    visited.insert(child);
+                    q.push(child);
                 }
             }
+            // small early exit if we already reached k (saves work)
+            if (static_cast<int>(visited.size()) >= this->k) break;
         }
         if (static_cast<int>(visited.size()) >= this->k) {
             pivots.push_back(u);

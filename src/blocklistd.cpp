@@ -4,6 +4,7 @@
 #include <set>
 #include <map>
 #include <iostream>
+#include <iterator>
 
 #include "include/node.hpp"
 
@@ -13,7 +14,9 @@ static size_t blockSize(int M) {
 
 BlockListD::BlockListD(int M_, int B_) : M(M_), B(B_) {
     D0.clear();
+    D1.clear();
     D1.push_back({});
+    D1Bounds.clear();
     D1Bounds[B] = D1.begin();
 }
 
@@ -28,8 +31,16 @@ void BlockListD::insert(Node* key, int value) {
     }
 
     // Find block with smallest upper bound >= value using map
+    if (D1Bounds.empty()) {
+        D1.clear();
+        D1.push_back({});
+        D1Bounds[B] = D1.begin();
+    }
     auto boundIt = D1Bounds.lower_bound(value);
-    if (boundIt == D1Bounds.end()) --boundIt;
+    if (boundIt == D1Bounds.end()) {
+        // pick the last block
+        boundIt = std::prev(D1Bounds.end());
+    }
     auto blockIt = boundIt->second;
 
     // Insert sorted into block
@@ -38,9 +49,13 @@ void BlockListD::insert(Node* key, int value) {
     block.insert(pos, {key, value});
     keyMap[key] = {key, value};
 
-    // Update upper bound
-    D1Bounds.erase(boundIt);
-    D1Bounds[block.empty() ? B : block.back().value] = blockIt;
+    // Refresh bounds for this block: remove any entries pointing to this iterator and add new bound
+    std::vector<int> removeKeys;
+    for (const auto& kv : D1Bounds) if (kv.second == blockIt) removeKeys.push_back(kv.first);
+    for (int k : removeKeys) D1Bounds.erase(k);
+    int newBound = block.empty() ? B : block.back().value;
+    D1Bounds[newBound] = blockIt;
+
     while (static_cast<int>(block.size()) > M) splitBlock(blockIt);
 }
 
@@ -75,15 +90,17 @@ void BlockListD::remove(Node* key) {
         block.erase(std::remove_if(block.begin(), block.end(), [key](const Pair& p){return p.key==key;}), block.end());
     }
 
+    // Remove key from D1 blocks and refresh bounds for each changed block
     for (auto it = D1.begin(); it != D1.end(); ++it) {
         size_t before = it->size();
         it->erase(std::remove_if(it->begin(), it->end(), [key](const Pair& p){return p.key==key;}), it->end());
-        if (before > 0 && it->empty()) {
-            std::vector<int> boundsToRemove;
-            for (const auto& kv : D1Bounds) {
-                if (kv.second == it) boundsToRemove.push_back(kv.first);
-            }
-            for (int bound : boundsToRemove) D1Bounds.erase(bound);
+        if (it->size() != before) {
+            // refresh bounds mapping for this block
+            std::vector<int> removeKeys;
+            for (const auto& kv : D1Bounds) if (kv.second == it) removeKeys.push_back(kv.first);
+            for (int k : removeKeys) D1Bounds.erase(k);
+            int newBound = it->empty() ? B : it->back().value;
+            D1Bounds[newBound] = it;
         }
     }
 
@@ -108,6 +125,7 @@ bool BlockListD::empty() const { return keyMap.empty(); }
 std::pair<std::vector<Node*>, int> BlockListD::pull() {
     // Always return a prefix of size ceil(M/2) (or all remaining if less)
     std::vector<Pair> candidates;
+    candidates.reserve(blockSize(M) * 2);
     for (auto& block : D0) {
         for (const auto& p : block) candidates.push_back(p);
         if (candidates.size() >= blockSize(M)) break;
@@ -145,16 +163,18 @@ void BlockListD::splitBlock(std::list<std::vector<Pair>>::iterator blockIt) {
     std::vector<Pair> left(block.begin(), block.begin() + sz);
     std::vector<Pair> right(block.begin() + sz, block.end());
     block = left;
-    auto newBlockIt = D1.insert(++blockIt, right);
-    
-    // Update bounds
+    auto nextIt = std::next(blockIt);
+    auto newBlockIt = D1.insert(nextIt, right);
+
+    // Refresh bounds for both blocks: remove old entries pointing to blockIt, then insert new entries
     std::vector<int> boundsToRemove;
     for (const auto& kv : D1Bounds) {
         if (kv.second == blockIt) boundsToRemove.push_back(kv.first);
     }
     for (int bound : boundsToRemove) D1Bounds.erase(bound);
-    int leftBound = left.empty() ? B : left.back().value;
-    int rightBound = right.empty() ? B : right.back().value;
+
+    int leftBound = block.empty() ? B : block.back().value;
+    int rightBound = newBlockIt->empty() ? B : newBlockIt->back().value;
     D1Bounds[leftBound] = blockIt;
     D1Bounds[rightBound] = newBlockIt;
 }
