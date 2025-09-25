@@ -2,6 +2,7 @@
 
 #include <queue>
 #include <algorithm>
+#include <climits>
 
 Dijkstra::Dijkstra(Graph& graph) : graph(graph) {}
 

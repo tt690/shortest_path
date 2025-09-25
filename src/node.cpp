@@ -1,5 +1,7 @@
 #include "include/node.hpp"
 
+#include <climits>
+
 Node::Node(std::string label):label(label)
 {
     this->distanceToSource = INT_MAX;

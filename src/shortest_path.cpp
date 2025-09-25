@@ -1,8 +1,15 @@
 #include "include/shortest_path.hpp"
 
+
 #include <random>
 #include <vector>
 #include <unordered_set>
+#include <string>
+#include <cstdint>
+#include <cstdlib>
+#include <algorithm>
+#include <utility>
+#include <iterator>
 
 #include "include/graph.hpp"
 #include "include/edge.hpp"
@@ -17,28 +24,35 @@ struct InitResult {
 
 shortest_path shortest_path_instance;
 
+// Define export macro for Linux (GCC)
+#ifdef _WIN32
+#  define EXPORT __declspec(dllexport)
+#else
+#  define EXPORT __attribute__((visibility("default")))
+#endif
+
 extern "C" {
-    __declspec(dllexport) void set_random_seed(unsigned seed) {
+    EXPORT void set_random_seed(unsigned seed) {
         shortest_path_instance.set_random_seed(seed);
     }
 
-    __declspec(dllexport) void generate_graph(int num_vertices, int num_edges) {
+    EXPORT void generate_graph(int num_vertices, int num_edges) {
         shortest_path_instance.generate_graph(num_vertices, num_edges);
     }
 
-    __declspec(dllexport) void set_start_end_nodes() {
+    EXPORT void set_start_end_nodes() {
         shortest_path_instance.set_start_end_nodes();
     }
 
-    __declspec(dllexport) InitResult initialize(bool bmssp) {
-        auto result = shortest_path_instance.initialize(bmssp);
+    EXPORT InitResult initialize(bool bmssp) {
+        std::pair<int, int> result = shortest_path_instance.initialize(bmssp);
         InitResult out;
         out.vertex_count = result.first;
         out.edge_count = result.second;
         return out;
     }
 
-    __declspec(dllexport) void get_shortest_path() {
+    EXPORT void get_shortest_path() {
         shortest_path_instance.get_shortest_path();
     }
 }
@@ -111,8 +125,8 @@ void shortest_path::generate_graph(int num_vertices, int num_edges) {
 }
 
 void shortest_path::set_start_end_nodes() {
-    int start = rand() % graph.nodes.size();
-    int end = rand() % graph.nodes.size();
+    int start = std::rand() % graph.nodes.size();
+    int end = std::rand() % graph.nodes.size();
     start_node = graph.nodes[start];
     end_node = graph.nodes[end];
 }

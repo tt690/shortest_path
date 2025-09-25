@@ -1,6 +1,6 @@
 # Compiler settings - Can be customized.
 CC = g++
-CXXFLAGS = -std=c++17 -Wall
+CXXFLAGS = -std=c++17 -Wall -fPIC
 LDFLAGS = 
 
 # Makefile settings - Can be customized.
@@ -9,7 +9,7 @@ EXT = .cpp
 SRCDIR = src
 OBJDIR = obj
 
-TESTAPPNAME = test
+TESTAPPNAME = test_app
 TESTSRCDIR = test
 TESTOBJDIR = testobj
 
@@ -42,43 +42,37 @@ $(APPNAME): $(OBJ) main.cpp
 $(TESTAPPNAME): $(OBJ) $(TESTOBJ)
 	$(CC) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-# Creates the dependecy rules
-%.d: $(SRCDIR)/%$(EXT) $(TESTSRCDIR)/%$(EXT)
-	@$(CPP) $(CFLAGS) $< -MM -MT $(@:%.d=$(OBJDIR)/%.o) >$@
+# Dependency generation (for each source file)
+%.d: $(SRCDIR)/%$(EXT)
+	@$(CC) $(CXXFLAGS) -MM $< -MT $(OBJDIR)/$*.o > $@
 
 # Includes all .h files
 -include $(DEP)
 -include $(TESTDEP)
 
-# Building rule for .o files and its .c/.cpp in combination with all .h
-$(OBJDIR)/%.o: $(SRCDIR)/%$(EXT) main.cpp
+# Building rule for .o files from src
+$(OBJDIR)/%.o: $(SRCDIR)/%$(EXT)
+	@mkdir -p $(OBJDIR)
 	$(CC) $(CXXFLAGS) -o $@ -c $<
 
 $(TESTOBJDIR)/%.o: $(TESTSRCDIR)/%$(EXT)
+	@mkdir -p $(TESTOBJDIR)
 	$(CC) $(CXXFLAGS) -o $@ -c $<  -Isrc/
 
-# DLL output directory
-DLLDIR = shortest_path
-
-# List of base names for source files (without extension)
+SHAREDDIR = shortest_path
 SRCBASE = $(notdir $(basename $(SRC)))
+SHAREDLIBS = $(addprefix $(SHAREDDIR)/, $(addsuffix .so, $(SRCBASE)))
 
-# List of DLLs to build
-DLLS = $(addprefix $(DLLDIR)/, $(addsuffix .dll, $(SRCBASE)))
+# Rule to build all shared libraries
+sharedlibs: $(SHAREDLIBS)
 
-# Rule to build all DLLs
-dlls: $(DLLS)
+# Pattern rule to build each shared library from its object file
+$(SHAREDDIR)/%.so: $(OBJ)
+	@mkdir -p $(SHAREDDIR)
+	$(CC) -shared -fPIC -o $@ $^
 
-# Pattern rule to build each DLL from its object file
-$(DLLDIR)/%.dll: $(OBJDIR)/%.o $(OBJ)
-	$(CC) -shared -static -static-libgcc -static-libstdc++ -o $@ $^ -fPIC
-
-# Ensure DLLDIR exists
-$(DLLDIR):
-	mkdir $(DLLDIR)
-
-# Update 'all' target to build DLLs too
-all: $(APPNAME) $(TESTAPPNAME) dlls
+# Update 'all' target to build shared libs too
+all: $(APPNAME) $(TESTAPPNAME) sharedlibs
 
 ################### Cleaning rules for Unix-based OS ###################
 # Cleans complete project

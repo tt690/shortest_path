@@ -15,8 +15,8 @@ class ShortestPathLib:
         """
         Initialize the ShortestPathLib class.
         """
-        dll_path = pathlib.Path(__file__).parent.parent.parent / "shortest_path" / "shortest_path.dll"
-        self.lib = ctypes.CDLL(str(dll_path))
+        so_path = pathlib.Path(__file__).parent.parent.parent / "shortest_path" / "shortest_path.so"
+        self.lib = ctypes.CDLL(str(so_path))
 
         self.lib.set_random_seed.argtypes = [ctypes.c_uint]
         self.lib.set_random_seed.restype = None
