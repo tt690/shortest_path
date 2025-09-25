@@ -11,7 +11,7 @@ class InitResult(ctypes.Structure):
 class ShortestPathLib:
     """A class that provides an interface to the shortest path library."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize the ShortestPathLib class.
         """
@@ -33,7 +33,7 @@ class ShortestPathLib:
         self.lib.get_shortest_path.argtypes = []
         self.lib.get_shortest_path.restype = None
 
-    def set_random_seed(self, seed: int):
+    def set_random_seed(self, seed: int) -> None:
         """
         Set the random seed for the graph generation.
 
@@ -42,7 +42,7 @@ class ShortestPathLib:
         """
         self.lib.set_random_seed(seed)
 
-    def generate_graph(self, num_vertices: int, num_edges: int):
+    def generate_graph(self, num_vertices: int, num_edges: int) -> None:
         """
         Generate a random graph.
 
@@ -52,7 +52,7 @@ class ShortestPathLib:
         """
         self.lib.generate_graph(num_vertices, num_edges)
 
-    def set_start_end_nodes(self):
+    def set_start_end_nodes(self) -> None:
         """
         Set the start and end nodes for the shortest path algorithm.
         """
@@ -71,7 +71,7 @@ class ShortestPathLib:
         result = self.lib.initialize(bmssp)
         return result.vertex_count, result.edge_count
 
-    def get_shortest_path(self):
+    def get_shortest_path(self) -> None:
         """
         Get the shortest path from the source to the target.
         """
