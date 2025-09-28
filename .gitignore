@@ -49,3 +49,10 @@ __pycache__/
 
 # vscode settings
 .vscode/
+
+# Local build artifacts to ignore
+/main
+/test_app
+obj/
+testobj/
+shortest_path/
