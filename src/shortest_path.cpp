@@ -62,7 +62,6 @@ void shortest_path::set_random_seed(unsigned seed) {
     this->generator.seed(seed);
 }
 
-// ...existing code...
 void shortest_path::generate_graph(int num_vertices, int num_edges) {
     for (Node* n : graph.nodes) delete n;
     for (Edge* e : graph.edges) delete e;
@@ -81,7 +80,7 @@ void shortest_path::generate_graph(int num_vertices, int num_edges) {
     }
 
     // Parameters: adjust MAX_DEGREE to keep graph in BMSSP's constant-degree regime.
-    const int MAX_DEGREE = 8; // choose 2..10 depending on target
+    const int MAX_DEGREE = 2; // choose 2..10 depending on target
     edges.reserve(num_edges);
 
     // keep track of out-degree and seen directed edges (u->v)
