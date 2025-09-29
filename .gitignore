@@ -56,3 +56,6 @@ __pycache__/
 obj/
 testobj/
 shortest_path/
+
+benchbin/*
+!benchbin/.gitkeep

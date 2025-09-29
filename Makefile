@@ -74,6 +74,30 @@ $(SHAREDDIR)/%.so: $(OBJ)
 # Update 'all' target to build shared libs too
 all: $(APPNAME) $(TESTAPPNAME) sharedlibs
 
+# Benchmark settings
+BENCHDIR = benchmark
+BENCHBIN_DIR = benchbin
+BENCHSRC = $(wildcard $(BENCHDIR)/*.cpp)
+BENCHBINARIES = $(patsubst $(BENCHDIR)/%.cpp,$(BENCHBIN_DIR)/%,$(BENCHSRC))
+
+.PHONY: bench run-benches
+
+# Build all benchmark executables
+bench: $(BENCHBINARIES)
+
+# Pattern rule: build single benchmark exe from its .cpp and link project objects
+# Adjust linking flags if your benchmarks don't need project objects -- remove $(OBJ) in that case.
+$(BENCHBIN_DIR)/%: $(BENCHDIR)/%.cpp $(OBJ)
+	@mkdir -p $(BENCHBIN_DIR)
+	$(CC) $(CXXFLAGS) -Isrc -o $@ $< $(OBJ) $(LDFLAGS) -lbenchmark -lpthread
+
+# Run all benchmarks sequentially (use --benchmark_filter or run a single exe directly for selective runs)
+run-benches: bench
+	@for f in $(BENCHBINARIES); do \
+		echo "==== Running $$f ===="; \
+		"./$$f"; \
+	done
+
 ################### Cleaning rules for Unix-based OS ###################
 # Cleans complete project
 .PHONY: clean
